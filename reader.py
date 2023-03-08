@@ -1,11 +1,13 @@
 from abc import ABC, abstractmethod
+from io import TextIOWrapper
+
 from data import RawData
 import csv
 
 
 class InputReader(ABC):
     @abstractmethod
-    def __init__(self, file_path: str, *args, **kwargs) -> None:
+    def __init__(self, file: TextIOWrapper, *args, **kwargs) -> None:
         pass
 
     @abstractmethod
@@ -18,13 +20,13 @@ class CSVReader(InputReader):
 
     def __init__(
         self,
-        file_path: str,
+        file: TextIOWrapper,
         field_names=("host", "ports"),
         delimiter=";",
         list_delimiter=",",
         skip_header=True,
     ) -> None:
-        with open(file_path) as f:
+        with file as f:
             if skip_header:
                 f.readline()
             reader = csv.DictReader(f, fieldnames=field_names, delimiter=delimiter)

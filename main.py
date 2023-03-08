@@ -1,5 +1,6 @@
 import sys
 from typing import Generator
+import argparse
 
 from pydantic import ValidationError
 
@@ -41,6 +42,7 @@ def get_info(
 def load_data(
     reader: InputReader,
     host_resolver: HostResolver,
+    print_data: bool = False,
 ) -> Generator[HostData, None, None]:
     for data in reader.read():
         try:
@@ -48,7 +50,8 @@ def load_data(
             host_data = HostData(
                 host_name=host_name, host_ips=host_ips, ports=data.ports
             )
-            print(host_data)
+            if print_data:
+                print(host_data)
             yield host_data
 
         except ValidationError:
@@ -61,16 +64,22 @@ def main(
     reader: InputReader,
     host_resolver: HostResolver,
     pinger: Pinger,
-    port_checker: PortChecker
+    port_checker: PortChecker,
+    print_input: bool = False,
 ) -> None:
-    for host_data in load_data(reader, host_resolver):
+    for host_data in load_data(reader, host_resolver, print_data=print_input):
         for result in get_info(host_data, pinger, port_checker):
             print_scan_result(result)
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("input_file", help="Input CSV file", type=argparse.FileType("r"))
+
+    args = parser.parse_args()
+
     main(
-        CSVReader("data.csv"),
+        CSVReader(args.input_file),
         SocketHostResolver(),
         PythonpingPinger(),
         SocketPortChecker(),
