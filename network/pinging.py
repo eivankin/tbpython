@@ -61,6 +61,8 @@ class PythonpingPinger(Pinger):
                 "try to run this program as administrator (in Windows) or as root (in Linux) "
                 "or use other pinger class"
             )
+        except OSError as e:
+            raise PingerError(e)
 
 
 class PingerError(Exception):
