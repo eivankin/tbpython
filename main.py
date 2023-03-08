@@ -51,6 +51,7 @@ def load_data(
                 host_name=host_name, host_ips=host_ips, ports=data.ports
             )
             if print_data:
+                print()
                 print(host_data)
             yield host_data
 
@@ -75,6 +76,7 @@ def main(
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("input_file", help="Input CSV file", type=argparse.FileType("r"))
+    parser.add_argument("--show-input", action="store_true")
 
     args = parser.parse_args()
 
@@ -83,4 +85,5 @@ if __name__ == "__main__":
         SocketHostResolver(),
         PythonpingPinger(),
         SocketPortChecker(),
+        print_input=args.show_input,
     )
